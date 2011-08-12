@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+require 'fileutils'
+
+xcode_locations = [
+  "/Developer/Library/PrivateFrameworks/DVTFoundation.framework/Versions/A/DVTFoundation",
+  "/Developer/Library/PrivateFrameworks/DVTKit.framework/Versions/A/DVTKit",
+  "/Developer/Library/PrivateFrameworks/IDEFoundation.framework/Versions/A/IDEFoundation",
+  "/Developer/Library/PrivateFrameworks/IDEKit.framework/Versions/A/IDEKit",
+  "/Developer/Library/Xcode/PrivatePlugIns/"]
+
+FileUtils.mkdir_p("docs")
+
+for location in xcode_locations
+  is_dir = !File.file?(location)
+
+  if is_dir
+    for file in Dir[location + "*"]
+      filename = File.basename(file, ".*")
+      dir = "docs/" + File.basename(location)
+      FileUtils.mkdir_p(dir)
+      `class-dump '#{file}' > #{dir}/#{filename}.h`
+    end
+  else
+    `class-dump '#{location}' > docs/#{File.basename(location)}.h`
+  end
+end
